@@ -43,9 +43,14 @@ const ShareModal = ({ file, onClose, onShare }) => {
       const linkShare = shares.find(s => s.share_token && !s.user_id);
       if (linkShare) {
         setShareLink(`${window.location.origin}/share/${linkShare.share_token}`);
+        if (linkShare.expires_at) {
+          const expiryDate = new Date(linkShare.expires_at);
+          const localDate = new Date(expiryDate.getTime() - expiryDate.getTimezoneOffset() * 60000);
+          setExpiresAt(localDate.toISOString().slice(0, 16));
+        }
       }
       const sharedUserIds = shares
-        .filter(s => s.user_id && (!s.expires_at || new Date(s.expires_at) > new Date()))
+        .filter(s => s.user_id)
         .map(s => s.user_id);
       setAlreadySharedUsers(sharedUserIds);
     } catch (error) {
@@ -87,9 +92,13 @@ const ShareModal = ({ file, onClose, onShare }) => {
       setSelectedUsers([]);
       setExpiresAt('');
       
-      if (response.data.alreadyShared && response.data.alreadyShared.length > 0) {
-        const names = response.data.alreadyShared.map(u => u.username).join(', ');
-        toast.warning(`File shared! Note: ${names} already had access.`);
+      if (response.data.updatedUsers && response.data.updatedUsers.length > 0) {
+        const names = response.data.updatedUsers.map(u => u.username).join(', ');
+        if (response.data.sharesCreated > 0) {
+          toast.success(`File shared! ${names} - expiry date updated.`);
+        } else {
+          toast.success(`Expiry date updated for: ${names}`);
+        }
       } else {
         toast.success('File shared successfully!');
       }
@@ -130,11 +139,21 @@ const ShareModal = ({ file, onClose, onShare }) => {
 
       const shareUrl = `${window.location.origin}/share/${response.data.shareToken}`;
       setShareLink(shareUrl);
+      
+      if (response.data.message === 'Share link updated') {
+        toast.success('Share link updated successfully!');
+      } else {
+        toast.success('Share link created successfully!');
+      }
+      
       if (onShare) {
         onShare();
       }
+      fetchShares();
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to generate link');
+      const errorMsg = error.response?.data?.error || 'Failed to generate link';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -186,16 +205,15 @@ const ShareModal = ({ file, onClose, onShare }) => {
               {users.map(user => {
                 const isAlreadyShared = alreadySharedUsers.includes(user.id);
                 return (
-                  <label key={user.id} className={`user-checkbox ${isAlreadyShared ? 'disabled' : ''}`}>
+                  <label key={user.id} className={`user-checkbox ${isAlreadyShared ? 'already-shared' : ''}`}>
                     <input
                       type="checkbox"
                       checked={selectedUsers.includes(user.id)}
                       onChange={() => handleUserToggle(user.id)}
-                      disabled={isAlreadyShared}
                     />
                     <span>
                       {user.username} ({user.email})
-                      {isAlreadyShared && <span className="already-shared-badge">Already shared</span>}
+                      {isAlreadyShared && <span className="already-shared-badge">Already shared - will update expiry</span>}
                     </span>
                   </label>
                 );
@@ -224,12 +242,21 @@ const ShareModal = ({ file, onClose, onShare }) => {
             </div>
 
             {shareLink ? (
-              <div className="link-display">
-                <input type="text" value={shareLink} readOnly />
-                <button onClick={() => copyToClipboard(shareLink)} className="copy-btn">
-                  Copy
+              <>
+                <div className="link-display">
+                  <input type="text" value={shareLink} readOnly />
+                  <button onClick={() => copyToClipboard(shareLink)} className="copy-btn">
+                    Copy
+                  </button>
+                </div>
+                <button
+                  onClick={handleGenerateLink}
+                  disabled={loading}
+                  className="update-btn"
+                >
+                  {loading ? 'Updating...' : 'Update Expiry Date'}
                 </button>
-              </div>
+              </>
             ) : (
               <button
                 onClick={handleGenerateLink}
