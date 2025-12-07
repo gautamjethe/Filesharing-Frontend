@@ -81,6 +81,16 @@
   font-size: 14px;
 }
 
+.file-oversized {
+  background: #fff3cd !important;
+  border: 1px solid #ffc107;
+}
+
+.file-size.oversized {
+  color: #dc3545;
+  font-weight: 600;
+}
+
 .remove-btn {
   background: #dc3545;
   color: white;

@@ -10,8 +10,34 @@ const FileUpload = ({ onUpload }) => {
   const [error, setError] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const MAX_FILE_SIZE = 500 * 1024 * 1024;
+
+  const formatFileSize = (bytes) => {
+    if (bytes >= 1024 * 1024 * 1024) {
+      return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    } else if (bytes >= 1024 * 1024) {
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    } else {
+      return (bytes / 1024).toFixed(2) + ' KB';
+    }
+  };
+
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
+    const maxSize = MAX_FILE_SIZE;
+    
+    const oversizedFiles = selectedFiles.filter(file => file.size > maxSize);
+    
+    if (oversizedFiles.length > 0) {
+      const fileNames = oversizedFiles.map(f => `${f.name} (${formatFileSize(f.size)})`).join(', ');
+      const errorMsg = `File size exceeds 500MB limit: ${fileNames}`;
+      setError(errorMsg);
+      toast.error(errorMsg);
+      e.target.value = '';
+      setFiles([]);
+      return;
+    }
+    
     setFiles(selectedFiles);
     setError('');
   };
@@ -20,6 +46,17 @@ const FileUpload = ({ onUpload }) => {
     if (files.length === 0) {
       setError('Please select at least one file');
       toast.error('Please select at least one file');
+      return;
+    }
+
+    const maxSize = MAX_FILE_SIZE;
+    const oversizedFiles = files.filter(file => file.size > maxSize);
+    
+    if (oversizedFiles.length > 0) {
+      const fileNames = oversizedFiles.map(f => `${f.name} (${formatFileSize(f.size)})`).join(', ');
+      const errorMsg = `File size exceeds 500MB limit: ${fileNames}`;
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -54,7 +91,16 @@ const FileUpload = ({ onUpload }) => {
         onUpload();
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.error || 'Upload failed';
+      let errorMsg = 'Upload failed';
+      
+      if (error.response?.data?.error) {
+        errorMsg = error.response.data.error;
+      } else if (error.message && error.message.includes('File too large')) {
+        errorMsg = 'File size exceeds 500MB limit';
+      } else if (error.code === 'ECONNABORTED') {
+        errorMsg = 'Upload timeout - file may be too large';
+      }
+      
       setError(errorMsg);
       toast.error(errorMsg);
       setUploadProgress(0);
@@ -106,13 +152,19 @@ const FileUpload = ({ onUpload }) => {
         <div className="file-list-preview">
           <h3>Selected Files ({files.length})</h3>
           <ul>
-            {files.map((file, index) => (
-              <li key={index}>
-                <span>{file.name}</span>
-                <span className="file-size">({(file.size / 1024).toFixed(2)} KB)</span>
-                <button onClick={() => removeFile(index)} className="remove-btn">×</button>
-              </li>
-            ))}
+            {files.map((file, index) => {
+              const isOversized = file.size > MAX_FILE_SIZE;
+              return (
+                <li key={index} className={isOversized ? 'file-oversized' : ''}>
+                  <span>{file.name}</span>
+                  <span className={`file-size ${isOversized ? 'oversized' : ''}`}>
+                    ({formatFileSize(file.size)})
+                    {isOversized && ' - Exceeds 500MB limit'}
+                  </span>
+                  <button onClick={() => removeFile(index)} className="remove-btn">×</button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
