@@ -67,6 +67,11 @@
 .error-box p {
   color: #c33;
   margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.error-box .back-btn {
+  margin-top: 20px;
 }
 
 .loading {

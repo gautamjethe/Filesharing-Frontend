@@ -41,32 +41,40 @@ const ShareAccess = () => {
     }
   };
 
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(`${API_URL}/files/share/${token}/download`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
+  const handleDownload = () => {
+    const authToken = localStorage.getItem('token');
+    const downloadUrl = `${API_URL}/files/share/${token}/download`;
+    
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = fileInfo.original_filename;
+    link.style.display = 'none';
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', downloadUrl, true);
+    xhr.setRequestHeader('Authorization', `Bearer ${authToken}`);
+    xhr.responseType = 'blob';
+    
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const blob = xhr.response;
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileInfo.original_filename;
-        document.body.appendChild(a);
-        a.click();
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
         toast.success('File downloaded successfully');
       } else {
         toast.error('Failed to download file');
       }
-    } catch (error) {
-      console.error('Download error:', error);
+    };
+    
+    xhr.onerror = function() {
       toast.error('Failed to download file');
-    }
+    };
+    
+    xhr.send();
   };
 
   if (authLoading || loading) {
@@ -79,7 +87,7 @@ const ShareAccess = () => {
         <div className="error-box">
           <h2>Access Denied</h2>
           <p>{error}</p>
-          <button onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
+          <button onClick={() => navigate('/dashboard')} className="back-btn">Go to Dashboard</button>
         </div>
       </div>
     );

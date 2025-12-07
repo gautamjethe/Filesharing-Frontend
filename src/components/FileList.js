@@ -6,31 +6,40 @@ import './FileList.css';
 
 const FileList = ({ files, loading, onShare, onDelete, onAuditLog, isShared, formatDate, formatFileSize }) => {
 
-  const handleDownload = async (fileId, filename) => {
-    try {
-      const response = await fetch(`${API_URL}/files/${fileId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
+  const handleDownload = (fileId, filename) => {
+    const token = localStorage.getItem('token');
+    const downloadUrl = `${API_URL}/files/${fileId}/download`;
+    
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', downloadUrl, true);
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    xhr.responseType = 'blob';
+    
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const blob = xhr.response;
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        toast.success('File downloaded successfully!');
       } else {
         toast.error('Failed to download file');
       }
-    } catch (error) {
-      console.error('Download error:', error);
+    };
+    
+    xhr.onerror = function() {
       toast.error('Failed to download file');
-    }
+    };
+    
+    xhr.send();
   };
 
   const handleDelete = async (fileId) => {
