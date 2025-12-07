@@ -1,0 +1,110 @@
+.audit-log-modal {
+  max-width: 900px;
+}
+
+.audit-log-content {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.audit-log-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.audit-log-table thead {
+  background: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.audit-log-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.audit-log-table td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+  color: #666;
+}
+
+.audit-log-table tr:hover {
+  background: #f8f9fa;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.username {
+  font-weight: 500;
+  color: #333;
+}
+
+.email {
+  font-size: 12px;
+  color: #999;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role-owner {
+  background: #667eea;
+  color: white;
+}
+
+.role-viewer {
+  background: #6c757d;
+  color: white;
+}
+
+.action-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.action-upload {
+  background: #28a745;
+  color: white;
+}
+
+.action-download {
+  background: #17a2b8;
+  color: white;
+}
+
+.action-share,
+.action-share_link {
+  background: #ffc107;
+  color: #333;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+

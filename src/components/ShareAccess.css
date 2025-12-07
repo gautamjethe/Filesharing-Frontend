@@ -1,0 +1,79 @@
+.share-access {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.share-box,
+.error-box {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.share-box h2,
+.error-box h2 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.file-info {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.file-info p {
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.download-btn {
+  width: 100%;
+  padding: 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.download-btn:hover {
+  background: #5568d3;
+}
+
+.back-btn {
+  width: 100%;
+  padding: 12px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: #5a6268;
+}
+
+.error-box p {
+  color: #c33;
+  margin-bottom: 20px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+}
+
