@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import API_URL from '../config/api';
 import './ShareModal.css';
 
@@ -88,9 +89,9 @@ const ShareModal = ({ file, onClose, onShare }) => {
       
       if (response.data.alreadyShared && response.data.alreadyShared.length > 0) {
         const names = response.data.alreadyShared.map(u => u.username).join(', ');
-        alert(`File shared successfully! Note: ${names} already had access to this file.`);
+        toast.warning(`File shared! Note: ${names} already had access.`);
       } else {
-        alert('File shared successfully!');
+        toast.success('File shared successfully!');
       }
       
       if (onShare) {
@@ -141,7 +142,7 @@ const ShareModal = ({ file, onClose, onShare }) => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    alert('Link copied to clipboard!');
+    toast.success('Link copied to clipboard!');
   };
 
   return (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import API_URL from '../config/api';
 import './ShareAccess.css';
 
@@ -58,10 +59,13 @@ const ShareAccess = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        toast.success('File downloaded successfully');
+      } else {
+        toast.error('Failed to download file');
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download file');
+      toast.error('Failed to download file');
     }
   };
 

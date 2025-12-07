@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import API_URL from '../config/api';
 import './FileList.css';
 
@@ -23,10 +24,12 @@ const FileList = ({ files, loading, onShare, onDelete, onAuditLog, isShared, for
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+      } else {
+        toast.error('Failed to download file');
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download file');
+      toast.error('Failed to download file');
     }
   };
 
@@ -45,9 +48,10 @@ const FileList = ({ files, loading, onShare, onDelete, onAuditLog, isShared, for
       if (onDelete) {
         onDelete();
       }
+      toast.success('File deleted successfully');
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Failed to delete file');
+      toast.error('Failed to delete file');
     }
   };
 
